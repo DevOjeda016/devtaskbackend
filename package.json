@@ -1,0 +1,12 @@
+{
+  "name": "desktaskbackend",
+  "version": "1.0.0",
+  "description": "DevTask - Gestor Colaborativo de Proyectos y Tareas",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Ojeda Luna",
+  "license": "ISC"
+}
