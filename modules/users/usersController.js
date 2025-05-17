@@ -1,3 +1,4 @@
+import { isValidObjectId } from 'mongoose';
 import userService from './usersService.js';
 
 const getAll = async (req, res) => {
@@ -56,9 +57,28 @@ const remove = async (req, res) => {
   }
 };
 
+const findById = async (req, res) => {
+  const { id } = req.params;
+
+  if (isValidObjectId(id) === false) {
+    return res.status(400).json({ error: 'ID inválido' });
+  }
+
+  try {
+    const user = await userService.findUserById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    return res.status(200).json(user);
+  } catch {
+    return res.status(500).json({ error: 'Error al obtener el usuario' });
+  }
+};
+
 export default {
   getAll,
   create,
   update,
   remove,
+  findById,
 };
