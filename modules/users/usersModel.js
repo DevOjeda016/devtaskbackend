@@ -39,7 +39,7 @@ const userSchema = new Schema({
 userSchema.set('toJSON', {
   transform: (doc, ret) => {
     const {
-      _id, __v, password, ...rest
+      _id, __v, password, passwordHashed, ...rest
     } = ret;
     return {
       ...rest,
