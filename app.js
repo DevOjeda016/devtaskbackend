@@ -5,7 +5,9 @@ import userRouter from './modules/users/index.js';
 
 const app = express();
 
-db.connectToDb();
+if (process.env.NODE_ENV !== 'test') {
+  db.connectToDb();
+}
 
 app.use(express.json());
 app.get('/', (req, res) => res.send('Hello world'));
