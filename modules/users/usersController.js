@@ -1,5 +1,6 @@
 import { isValidObjectId } from 'mongoose';
 import userService from './usersService.js';
+import { missingFieldsError } from './usersErrors.js';
 
 const getAll = async (req, res) => {
   try {
@@ -10,18 +11,19 @@ const getAll = async (req, res) => {
   }
 };
 
-const create = async (req, res) => {
-  const userData = req.body;
-
-  if (!userData) {
-    res.status(400).json({ error: 'No se envió ninguna información' });
-  }
-
+const create = async (req, res, next) => {
   try {
-    const userCreated = await userService.createUser(userData);
+    const requiredFields = ['username', 'email', 'password', 'name', 'lastname', 'role'];
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      throw missingFieldsError(missingFields);
+    }
+
+    const userCreated = await userService.createUser(req.body);
     return res.status(201).json(userCreated);
-  } catch {
-    return res.status(500).json({ error: 'Error al registrar el usuario' });
+  } catch (err) {
+    return next(err);
   }
 };
 

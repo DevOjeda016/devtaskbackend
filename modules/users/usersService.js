@@ -1,23 +1,36 @@
-import authDal from './usersDal.js';
+import usersDal from './usersDal.js';
 import { hashPassword } from '../../utils/encryption.js';
+import { userAlreadyRegisteredError } from './usersErrors.js';
 
-const listUsers = () => authDal.findAll();
+const listUsers = () => usersDal.findAll();
 
 const createUser = async (userData) => {
-  const { password, ...rest } = userData;
+  const { password, email, username } = userData;
+
+  const existingUser = usersDal.findByUsernameOrEmail(username, email);
+  if (existingUser) {
+    throw userAlreadyRegisteredError('Ya existe un usuario con ese nombre de usuario o correo electrónico');
+  }
+
   const passwordHashed = await hashPassword(password);
   const userToCreate = {
-    ...rest,
+    ...userData,
     passwordHashed,
   };
-  return authDal.create(userToCreate);
+
+  delete userToCreate.password;
+
+  return usersDal.create(userToCreate);
 };
 
-const updateUser = (id, userData) => authDal.updateById(id, userData);
+const updateUser = (id, userData) => usersDal.updateById(id, userData);
 
-const findUserById = (id) => authDal.findById(id);
+const findUserById = (id) => usersDal.findById(id);
 
-const deleteUser = (id) => authDal.deleteById(id);
+const findUserByUsernameOrEmail = (username, email) => usersDal
+  .findByUsernameOrEmail({ username, email });
+
+const deleteUser = (id) => usersDal.deleteById(id);
 
 export default {
   listUsers,
@@ -25,4 +38,5 @@ export default {
   updateUser,
   deleteUser,
   findUserById,
+  findUserByUsernameOrEmail,
 };

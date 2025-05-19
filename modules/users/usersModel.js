@@ -5,33 +5,37 @@ const { Schema } = mongoose;
 const userSchema = new Schema({
   name: {
     type: String,
-    require: true,
+    required: true,
   },
   lastname: {
     type: String,
-    require: true,
+    required: true,
   },
   username: {
     type: String,
-    require: true,
+    unique: true,
+    required: true,
   },
   passwordHashed: {
     type: String,
-    require: true,
+    required: true,
   },
   email: {
     type: String,
     unique: true,
-    require: true,
+    required: true,
   },
   role: {
     type: String,
-    require: true,
+    required: true,
+    default: 'user',
+    enum: ['admin', 'user'],
   },
   projects: [
     {
       type: Schema.ObjectId,
       ref: 'Project',
+      default: [],
     },
   ],
 });
