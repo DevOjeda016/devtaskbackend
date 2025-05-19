@@ -16,6 +16,15 @@ const findById = async (id) => {
   return user;
 };
 
+const findByUsernameOrEmail = async (username, email) => User.findOne(
+  {
+    $or: [
+      { username },
+      { email },
+    ],
+  },
+);
+
 const updateById = async (id, user) => {
   const userUpdated = await User.findByIdAndUpdate(id, user, {
     new: true,
@@ -36,4 +45,5 @@ export default {
   updateById,
   deleteById,
   findById,
+  findByUsernameOrEmail,
 };
