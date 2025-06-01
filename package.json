@@ -1,5 +1,5 @@
 {
-  "name": "desktaskbackend",
+  "name": "devtaskbackend",
   "version": "1.0.0",
   "description": "DevTask - Gestor Colaborativo de Proyectos y Tareas",
   "main": "index.js",
