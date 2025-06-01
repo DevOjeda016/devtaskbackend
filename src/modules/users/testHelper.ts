@@ -1,5 +1,6 @@
-import User from './usersModel.js';
-import { hashPassword } from '../../utils/encryption.js';
+import User from './usersModel';
+import { hashPassword } from '../../utils/encryption';
+import { IUser, IUserCreate } from './userTypes';
 
 const getInitialUsers = async () => {
   const users = [
@@ -24,7 +25,6 @@ const getInitialUsers = async () => {
   ];
 
   // Hash plain text passwords and delete property password
-
   const usersWithHashedPasswords = await Promise.all(
     users.map(async (u) => {
       const { password, ...rest } = u;
@@ -38,24 +38,33 @@ const getInitialUsers = async () => {
   return usersWithHashedPasswords;
 };
 
-const initializeUsers = async () => {
+const initializeUsers = async (): Promise<void> => {
   const users = await getInitialUsers();
   await User.insertMany(users);
 };
 
-const deleteUsers = async () => {
+const deleteUsers = async (): Promise<void> => {
   await User.deleteMany({});
 };
 
-const nonExistingId = async () => {
-  const note = new User({ content: 'willremovethissoon' });
-  await note.save();
-  await note.deleteOne();
+const nonExistingId = async (): Promise<string> => {
+  const passwordHashed = await hashPassword('PassSeguro123*')
+  const userData: IUserCreate = {
+      name: 'nameTemp',
+      lastname: 'lastnameTemp',
+      username: 'username.temp',
+      passwordHashed,
+      email: 'temp@example.com',
+      role: 'user'
+  }
+  const user = new User(userData);
+  await user.save();
+  await user.deleteOne();
 
-  return note._id.toString();
+  return user._id.toString();
 };
 
-const usersInDb = async () => {
+const usersInDb = async (): Promise<IUser[]> => {
   const notes = await User.find();
   return notes.map((u) => u.toJSON());
 };

@@ -1,16 +1,16 @@
-import mongoConnection from './mongoConnection.js';
-import memoryMongoConnection from './memoryMongoConnection.js';
+import mongoConnection from './mongoConnection';
+import memoryMongoConnection from './memoryMongoConnection';
 
 const env = process.env.NODE_ENV || 'development';
 
-const connectToDb = async () => {
+const connectToDb = async (): Promise<void> => {
   if (env === 'test') {
     return memoryMongoConnection.connectToDb();
   }
   return mongoConnection.connectToDb();
 };
 
-const disconnectDb = async () => {
+const disconnectDb = async (): Promise<void> => {
   if (env === 'test') {
     return memoryMongoConnection.disconnectDb();
   }

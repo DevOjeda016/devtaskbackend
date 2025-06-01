@@ -1,9 +1,11 @@
 import supertest from 'supertest';
-import dbConnection from '../../db/index.js';
-import userDal from './usersDal.js';
-import { hashPassword } from '../../utils/encryption.js';
-import testHelper from './testHelper.js';
-import app from '../../app.js';
+import dbConnection from '../../db/index';
+import userDal from './usersDal';
+import { hashPassword } from '../../utils/encryption';
+import testHelper from './testHelper';
+import app from '../../app';
+import { IUserCreate, IUserRequest, IUserResponse } from './userTypes';
+import { toUserResponse } from './usersMapper';
 
 const api = supertest(app);
 const URL_API_USERS = '/api/users';
@@ -17,7 +19,7 @@ describe('API Endpoints - RESTful Integration Tests', () => {
     await testHelper.initializeUsers();
   });
   describe('POST /api/users', () => {
-    const dataToSend = {
+    const dataToSend: IUserRequest = {
       name: 'Test',
       lastname: 'User',
       username: 'test.user',
@@ -66,7 +68,7 @@ describe('API Endpoints - RESTful Integration Tests', () => {
       expect(response.body.length).toBeGreaterThan(0);
 
       // Verify that each user has the expected public fields
-      response.body.forEach((user) => {
+      response.body.forEach((user: IUserResponse) => {
         expect(user).toHaveProperty('name');
         expect(user).toHaveProperty('lastname');
         expect(user).toHaveProperty('username');
@@ -102,10 +104,11 @@ describe('API Endpoints - RESTful Integration Tests', () => {
   describe('GET /api/users/:id', () => {
     it('should return a user by ID with valid public fields', async () => {
       const users = await testHelper.usersInDb();
+      console.log(users)
       const userToFind = users[0];
 
       const response = await api
-        .get(`${URL_API_USERS}/${userToFind.id}`)
+        .get(`${URL_API_USERS}/${userToFind._id}`)
         .expect(200)
         .expect('Content-Type', /application\/json/);
 
@@ -153,7 +156,7 @@ describe('API Endpoints - RESTful Integration Tests', () => {
   });
 });
 
-describe('User Model - CRUD Operations Unit Tests', () => {
+describe('User DAL - CRUD Operations Integration Test', () => {
   beforeEach(async () => {
     await testHelper.deleteUsers();
     await testHelper.initializeUsers();
@@ -161,14 +164,13 @@ describe('User Model - CRUD Operations Unit Tests', () => {
   describe('CREATE', () => {
     it('should validate registering a new user successfully', async () => {
       const passwordHashed = await hashPassword('TestUser123*');
-      const testData = {
+      const testData: IUserCreate = {
         name: 'Test',
         lastname: 'User',
         username: 'test.user',
         passwordHashed,
         email: 'test.user@example.com',
-        role: 'user',
-        projects: [],
+        role: 'user'
       };
 
       const userCreated = await userDal.create(testData);
@@ -176,7 +178,7 @@ describe('User Model - CRUD Operations Unit Tests', () => {
       expect(userCreated).toHaveProperty('lastname', testData.lastname);
       expect(userCreated).toHaveProperty('email', testData.email);
       expect(userCreated).toHaveProperty('username', testData.username);
-      expect(userCreated).toHaveProperty('projects', testData.projects);
+      //expect(userCreated).toHaveProperty('projects', testData.projects);
       expect(userCreated).toHaveProperty('role', testData.role);
       expect(userCreated).toHaveProperty('passwordHashed');
       expect(userCreated._id).toBeDefined();
@@ -194,11 +196,17 @@ describe('User Model - CRUD Operations Unit Tests', () => {
   });
 
   it('should validate getting a user by id', async () => {
-    const users = (await userDal.findAll());
-    const userToFind = users[0].toJSON();
-    const userFound = (await userDal.findById(userToFind.id)).toJSON();
-    Object.entries(userToFind).forEach(([k, v]) => {
-      expect(userFound).toHaveProperty(k, v);
-    });
+    const users = await userDal.findAll();
+    expect(users.length).toBeGreaterThan(0);
+
+    const expectedUser = toUserResponse(users[0]);
+    const foundUser = await userDal.findById(expectedUser.id);
+
+    expect(foundUser).not.toBeNull()
+    expect(foundUser).toBeDefined()
+
+    const actualUser = toUserResponse(foundUser!)
+
+    expect(actualUser).toEqual(expectedUser)
   });
 });

@@ -1,7 +1,7 @@
-import CustomError from './CustomError.js';
+import CustomError from './CustomError';
 
 class BadRequestError extends CustomError {
-  constructor(message = 'Solicitud invalida') {
+  constructor(message: string = 'Solicitud invalida') {
     super(message, 400);
   }
 }

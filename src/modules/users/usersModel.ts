@@ -1,8 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
+import { IUser } from './userTypes';
 
 const { Schema } = mongoose;
 
-const userSchema = new Schema({
+const userSchema = new Schema<IUser>({
   name: {
     type: String,
     required: true,
@@ -33,7 +34,7 @@ const userSchema = new Schema({
   },
   projects: [
     {
-      type: Schema.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Project',
       default: [],
     },
@@ -41,15 +42,15 @@ const userSchema = new Schema({
 });
 
 userSchema.set('toJSON', {
-  transform: (doc, ret) => {
+  transform: (_doc, ret) => {
     const {
-      _id, __v, password, passwordHashed, ...rest
+      __v, ...rest
     } = ret;
     return {
-      ...rest,
-      id: _id.toString(),
+      ...rest
     };
   },
 });
 
-export default mongoose.model('User', userSchema);
+const UserModel: Model<IUser> = mongoose.model('User', userSchema);
+export default UserModel

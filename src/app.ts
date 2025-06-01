@@ -1,8 +1,7 @@
-import express from 'express';
-import apiAuth from './modules/auth/index.js';
-import db from './db/index.js';
-import userRouter from './modules/users/index.js';
-import errorHandler from './middleware/errorHandler.js';
+import express, { Request, Response, Router } from 'express';
+import db from './db/index';
+import userRouter from './modules/users/index';
+import errorHandler from './middleware/errorHandler';
 
 const app = express();
 
@@ -16,8 +15,7 @@ if (process.env.NODE_ENV !== 'test') {
 // so that the request body is parsed before reaching the route handlers
 app.use(express.json());
 
-app.get('/', (req, res) => res.send('Hello world'));
-app.use('/api/auth', apiAuth);
+//app.get('/', (req: Request, res: Response) => res.send('Hello world'));
 app.use('/api/users', userRouter);
 
 // Middleware to handle errors

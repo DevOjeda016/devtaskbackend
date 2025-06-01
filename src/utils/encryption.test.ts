@@ -1,4 +1,4 @@
-import { hashPassword, comparePassword } from './encryption.js';
+import { hashPassword, comparePassword } from './encryption';
 
 describe('Encryption utils', () => {
   const password = 'Password123*';
@@ -6,6 +6,12 @@ describe('Encryption utils', () => {
     const hashedPassword = await hashPassword(password);
     expect(hashedPassword).not.toBe(password);
     expect(hashedPassword).toHaveLength(60);
+  });
+
+  test('HASH - should return different hashes for the same password', async () => {
+    const hashedPassword1 = await hashPassword(password);
+    const hashedPassword2 = await hashPassword(password);
+    expect(hashedPassword1).not.toBe(hashedPassword2);
   });
 
   test('COMPARE - should compare a password with a hash', async () => {
@@ -18,10 +24,5 @@ describe('Encryption utils', () => {
     const hashedPassword = await hashPassword(password);
     const isMatch = await comparePassword('WrongPassword', hashedPassword);
     expect(isMatch).toBe(false);
-  });
-  test('HASH - should return different hashes for the same password', async () => {
-    const hashedPassword1 = await hashPassword(password);
-    const hashedPassword2 = await hashPassword(password);
-    expect(hashedPassword1).not.toBe(hashedPassword2);
   });
 });
